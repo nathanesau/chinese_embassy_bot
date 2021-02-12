@@ -131,16 +131,18 @@ def check_reservations():
     for k, v in info.items():
         for e in v:
             booked, total = e.split('/')
-            # if booked != total:  # send discord message
-            msg = (
-                f"found available reservation for month = {k}, data = {v}. "
-                f"visit {os.getenv('EMBASSY_URL')}"
-            )
-            requests.post(url=os.getenv("WEBHOOK_URL"), data={"content": msg})
-            break
+            if booked != total:  # send discord message
+                msg = (
+                    f"found available reservation for month = {k}, data = {v}. "
+                    f"visit {os.getenv('EMBASSY_URL')}"
+                )
+                requests.post(url=os.getenv("WEBHOOK_URL"), data={"content": msg})
+                break
 
 
 if __name__ == "__main__":
+
+    first_run = True
 
     while True:
         try:
@@ -148,5 +150,10 @@ if __name__ == "__main__":
             check_reservations()
         except:
             print("unable to check reservations at {}".format(datetime.now()))
+
+        if first_run:
+            msg = "Bot is healthy and running every 5 minutes as of {}".format(datetime.now())
+            requests.post(url=os.getenv("WEBHOOK_URL"), data={"content": msg})
+            first_run = False
 
         time.sleep(60*5)
